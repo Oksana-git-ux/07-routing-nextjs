@@ -23,10 +23,8 @@ interface NotesContentProps {
 }
 
 const NotesContent: React.FC<NotesContentProps> = ({ urlFilterTag }) => {
-
     const [page, setPage] = useState(0);
-
-    const [searchTerm, setSearchTerm] = useState(urlFilterTag); 
+    const [searchTerm, setSearchTerm] = useState(urlFilterTag);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
@@ -116,8 +114,17 @@ const NotesContent: React.FC<NotesContentProps> = ({ urlFilterTag }) => {
 const NotesClient: React.FC = () => {
     const pathname = usePathname();
 
-    const urlFilterTag = useMemo(() => pathname.split('/').pop() || '', [pathname]);
-    
+    const urlFilterTag = useMemo(() => {
+        const rawTag = pathname.split('/').pop() || '';
+
+        const isAllNotes =
+            rawTag === 'all' ||
+            rawTag === 'notes' ||
+            rawTag.trim() === '';
+
+        return isAllNotes ? '' : rawTag;
+    }, [pathname]);
+
     return (
         <NotesContent 
             key={urlFilterTag} 
