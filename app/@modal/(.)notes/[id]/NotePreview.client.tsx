@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import Modal from '@/components/Modal/Modal'; 
 import { useRouter } from 'next/navigation';
-import { fetchNoteById, type Note } from '@/lib/api'; 
+import { fetchNoteById } from '@/lib/api'; 
+import { type Note } from '@/types/note';
 import NotePreviewComponent from '@/components/NotePreview/NotePreview';
 
 interface NotePreviewClientProps {
@@ -16,7 +17,7 @@ const NotePreviewClient: React.FC<NotePreviewClientProps> = ({ noteId }) => {
     const handleClose = () => {
         router.back(); 
     };
-   
+
     return (
         <Modal onClose={handleClose}>
             <NotePreviewComponent noteId={noteId} /> 
