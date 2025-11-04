@@ -1,4 +1,4 @@
-import NotesClient from '@/app/notes/Notes.client';
+import NotesClient from '@/app/notes/filter/[...slug]/Notes.client';
 import NotesPageCSS from '@/app/notes/NotesPage.module.css';
 
 interface FilterPageProps {
