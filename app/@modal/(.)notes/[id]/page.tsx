@@ -13,7 +13,7 @@ export default async function InterceptedNotePage({ params }: InterceptedNotePag
   const noteId = params.id;
   
   if (!noteId) {
-      redirect('/notes/filter/all'); 
+    redirect('/notes/filter/all'); 
   }
 
   const queryClient = new QueryClient();
@@ -29,5 +29,3 @@ export default async function InterceptedNotePage({ params }: InterceptedNotePag
     </HydrationBoundary>
   );
 }
-
-
