@@ -31,7 +31,7 @@ const NotePreview: React.FC<NotePreviewProps> = ({ noteId }) => {
     let content;
 
     if (isLoading) {
-        content = <Loader message="Loading note details..." />;
+        content = <Loader />;
     } else if (isError) {
         content = (
             <ErrorMessage message={`Failed to load note details: ${error instanceof Error ? error.message : 'Unknown error'}`} />
