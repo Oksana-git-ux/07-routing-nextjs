@@ -18,26 +18,20 @@ import css from './Notes.module.css';
 
 const PER_PAGE = 12;
 
-const NotesClient: React.FC = () => {
-    const pathname = usePathname();
+interface NotesContentProps {
+    urlFilterTag: string;
+}
 
-    const urlFilterTag = useMemo(() => pathname.split('/').pop() || '', [pathname]);
+const NotesContent: React.FC<NotesContentProps> = ({ urlFilterTag }) => {
 
     const [page, setPage] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
+
+    const [searchTerm, setSearchTerm] = useState(urlFilterTag); 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
     const searchFilter = debouncedSearchTerm.trim() || urlFilterTag;
-
-    useEffect(() => {
-        setPage(0);
-        
-        if (searchTerm !== urlFilterTag) {
-            setSearchTerm(urlFilterTag);
-        }
-    }, [urlFilterTag, searchTerm]);
 
     const { data, isError, isFetching, error } = useQuery<NotesQueryResult>({
         queryKey: ['notes', page, searchFilter],
@@ -116,6 +110,19 @@ const NotesClient: React.FC = () => {
 
             <Toaster position="top-right" reverseOrder={false} />
         </div>
+    );
+};
+
+const NotesClient: React.FC = () => {
+    const pathname = usePathname();
+
+    const urlFilterTag = useMemo(() => pathname.split('/').pop() || '', [pathname]);
+    
+    return (
+        <NotesContent 
+            key={urlFilterTag} 
+            urlFilterTag={urlFilterTag} 
+        />
     );
 };
 
