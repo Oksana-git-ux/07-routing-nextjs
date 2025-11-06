@@ -45,9 +45,9 @@ const NoteList: React.FC<NoteListProps> = ({ notes }) => {
                         <button 
                             className={css.button} 
                             onClick={() => handleDelete(note.id)}
-                            disabled={deleteMutation.isLoading}
+                            disabled={deleteMutation.isPending}
                         >
-                            {deleteMutation.isLoading ? 'Deleting...' : 'Delete'}
+                            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
                         </button>
                     </div>
                 </li>
