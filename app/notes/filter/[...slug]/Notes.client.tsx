@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -12,13 +12,17 @@ const NotePreviewComponent = dynamic(
   { ssr: false }
 );
 
-const NotePreviewClient: React.FC<{ id: string }> = ({ id }) => {
+const NotePreviewClient: React.FC<{ noteId: string }> = ({ noteId }) => {
   const router = useRouter();
+  
+  const handleClose = useCallback(() => {
+    router.back();
+  }, [router]);
 
   return (
-    <Modal onClose={() => router.back()}>
+    <Modal onClose={handleClose}>
       <div className={css.notePreviewWrapper}>
-        <NotePreviewComponent noteId={id} />
+        <NotePreviewComponent noteId={noteId} />
       </div>
     </Modal>
   );
