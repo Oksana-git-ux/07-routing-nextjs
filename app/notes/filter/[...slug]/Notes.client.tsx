@@ -63,7 +63,7 @@ const NotePreviewClient: React.FC<NotePreviewClientProps> = ({ id }) => {
           />
         )}
 
-        {note && <NotePreviewComponent noteId={id} />}
+        {id && <NotePreviewComponent noteId={id} />}
       </div>
 
       <Toaster position="top-right" reverseOrder={false} />
