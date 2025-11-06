@@ -32,7 +32,7 @@ const NotePreviewClient: React.FC<NotePreviewClientProps> = ({ noteId }) => {
       {isError && (
         <ErrorMessage message={error instanceof Error ? error.message : 'Failed to load note.'} />
       )}
-      {note && <NotePreviewComponent note={note} />}
+      {noteId && <NotePreviewComponent noteId={noteId} />}
     </Modal>
   );
 };
