@@ -1,28 +1,40 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import Modal from '@/components/Modal/Modal'; 
+import Modal from '@/components/Modal/Modal';
 import { useRouter } from 'next/navigation';
-import { fetchNoteById } from '@/lib/api'; 
+import { fetchNoteById } from '@/lib/api';
 import { type Note } from '@/types/note';
 import NotePreviewComponent from '@/components/NotePreview/NotePreview';
+import Loader from '@/components/Loader/Loader';
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage';
 
 interface NotePreviewClientProps {
-    noteId: string;
+  noteId: string;
 }
 
 const NotePreviewClient: React.FC<NotePreviewClientProps> = ({ noteId }) => {
-    const router = useRouter();
+  const router = useRouter();
 
-    const handleClose = () => {
-        router.back(); 
-    };
+  const handleClose = () => {
+    router.back();
+  };
 
-    return (
-        <Modal onClose={handleClose}>
-            <NotePreviewComponent noteId={noteId} /> 
-        </Modal>
-    );
+  const { data: note, isLoading, isError, error } = useQuery<Note>({
+    queryKey: ['note', noteId],
+    queryFn: () => fetchNoteById(noteId),
+    refetchOnMount: false,
+  });
+
+  return (
+    <Modal onClose={handleClose}>
+      {isLoading && <Loader />}
+      {isError && (
+        <ErrorMessage message={error instanceof Error ? error.message : 'Failed to load note.'} />
+      )}
+      {note && <NotePreviewComponent note={note} />}
+    </Modal>
+  );
 };
 
 export default NotePreviewClient;

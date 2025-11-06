@@ -8,20 +8,20 @@ import Link from 'next/link';
 
 interface NoteListProps {
     notes: Note[];
-    currentPage: number;
 }
 
-const NoteList: React.FC<NoteListProps> = ({ notes, currentPage: _currentPage }) => {
+const NoteList: React.FC<NoteListProps> = ({ notes }) => {
     const queryClient = useQueryClient();
 
     const deleteMutation = useMutation({
         mutationFn: deleteNote,
         onSuccess: () => {
             toast.success('Note deleted!');
-            queryClient.invalidateQueries({ queryKey: ['notes'] }); 
+            queryClient.invalidateQueries({ queryKey: ['notes'] });
         },
-        onError: (error) => {
-            toast.error(`Deletion failed: ${error.message}`);
+        onError: (error: unknown) => {
+            const message = error instanceof Error ? error.message : 'Deletion failed';
+            toast.error(message);
         }
     });
 
@@ -45,9 +45,9 @@ const NoteList: React.FC<NoteListProps> = ({ notes, currentPage: _currentPage })
                         <button 
                             className={css.button} 
                             onClick={() => handleDelete(note.id)}
-                            disabled={deleteMutation.isPending}
+                            disabled={deleteMutation.isLoading}
                         >
-                            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                            {deleteMutation.isLoading ? 'Deleting...' : 'Delete'}
                         </button>
                     </div>
                 </li>
@@ -55,4 +55,5 @@ const NoteList: React.FC<NoteListProps> = ({ notes, currentPage: _currentPage })
         </ul>
     );
 };
+
 export default NoteList;
