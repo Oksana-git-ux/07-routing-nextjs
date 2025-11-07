@@ -4,14 +4,14 @@ import { fetchNotes } from '@/lib/api';
 import NotesPageCSS from '@/app/notes/NotesPage.module.css';
 
 interface FilterPageProps {
-  params: { slug: string[] } | Promise<{ slug: string[] }>;
+  params: {
+    slug: string[];
+  };
 }
 
 export default async function FilterPage({ params }: FilterPageProps) {
   
-  const resolvedParams = await Promise.resolve(params);
-
-  const rawTag = resolvedParams.slug?.[0] || '';
+  const rawTag = params.slug?.[0] || '';
 
   const normalizedTag =
     rawTag === 'all' || rawTag.trim() === '' ? '' : rawTag;
@@ -32,7 +32,7 @@ export default async function FilterPage({ params }: FilterPageProps) {
   return (
     <div className={NotesPageCSS.container}>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <NotesClient key={normalizedTag} initialSearch={normalizedTag} />
+        <NotesClient key={normalizedTag} initialTag={normalizedTag} />
       </HydrationBoundary>
     </div>
   );
