@@ -4,14 +4,15 @@ import { fetchNotes } from '@/lib/api';
 import NotesPageCSS from '@/app/notes/NotesPage.module.css';
 
 interface FilterPageProps {
-  params: {
-    slug: string[];
-  };
+  
+  params: { slug: string[] } | Promise<{ slug: string[] }>;
 }
 
 export default async function FilterPage({ params }: FilterPageProps) {
+
+  const resolvedParams = await Promise.resolve(params);
   
-  const rawTag = params.slug?.[0] || '';
+  const rawTag = resolvedParams.slug?.[0] || '';
 
   const normalizedTag =
     rawTag === 'all' || rawTag.trim() === '' ? '' : rawTag;
