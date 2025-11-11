@@ -3,21 +3,19 @@ import { fetchNoteById } from '@/lib/api';
 import NoteDetailsClient from './NoteDetails.client';
 
 interface NoteDetailsPageProps {
-  params: Promise<{
-    id: string;
-  }> | { id: string };
+  params: { id: string };
 }
 
 export default async function NoteDetailsPage({ params }: NoteDetailsPageProps) {
-  const resolvedParams = await params;
-  const noteId = resolvedParams.id;
+  const noteId = params.id;
 
- if (!noteId) {
+  if (!noteId) {
     return <div>Note ID is missing.</div>;
   }
 
   const queryClient = new QueryClient();
 
+  // Prefetch note on the server
   await queryClient.prefetchQuery({
     queryKey: ['note', noteId],
     queryFn: () => fetchNoteById(noteId),
@@ -25,7 +23,7 @@ export default async function NoteDetailsPage({ params }: NoteDetailsPageProps) 
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient noteId={noteId} /> 
+      <NoteDetailsClient noteId={noteId} />
     </HydrationBoundary>
   );
 }

@@ -1,21 +1,16 @@
-import React from 'react';
-import css from '../LayoutNotes.module.css';
+import css from '@/app/notes/LayoutNotes.module.css';
 
-interface NotesFilterLayoutProps {
-  children: React.ReactNode;
+export default function NotesFilterLayout({
+  sidebar,
+  children,
+}: {
   sidebar: React.ReactNode;
-}
-
-export default function NotesFilterLayout({ children, sidebar }: NotesFilterLayoutProps) {
+  children: React.ReactNode;
+}) {
   return (
-    <div className={css.mainContainer}>
-      <aside className={css.sidebar}>
-        {sidebar}
-      </aside>
-      
-      <main className={css.contentArea}>
-        {children}
-      </main>
+    <div className={css.layout}>
+      <aside className={css.sidebar}>{sidebar}</aside>
+      <main className={css.main}>{children}</main>
     </div>
   );
 }
