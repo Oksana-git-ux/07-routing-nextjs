@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNoteById } from '@/lib/api'; // використовуємо ваш API
+import { fetchNoteById } from '@/lib/api';
 import { Note } from '@/types/note';
 import css from '@/components/NotePreview/NotePreview.module.css';
 import ErrorMessage from '@/components/ErrorMessage/ErrorMessage';
@@ -15,10 +15,10 @@ export default function NotePreview({ id }: NotePreviewProps) {
   const { data: note, isLoading, isError, error } = useQuery<Note>({
     queryKey: ['note-preview', id],
     queryFn: async () => {
-      console.log('Fetching note preview with id:', id); // дебаг
+      console.log('Fetching note preview with id:', id);
       return fetchNoteById(id);
     },
-    enabled: !!id, // виконуємо запит тільки якщо id існує
+    enabled: !!id,
     refetchOnMount: false,
   });
 

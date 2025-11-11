@@ -16,7 +16,7 @@ interface NoteListProps {
 
 const NoteList: React.FC<NoteListProps> = ({ notes }) => {
   const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
-  const [noteToView, setNoteToView] = useState<Note | null>(null); // для модалки перегляду
+  const [noteToView, setNoteToView] = useState<Note | null>(null);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -53,7 +53,7 @@ const NoteList: React.FC<NoteListProps> = ({ notes }) => {
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   className={css.link}
-                  onClick={() => setNoteToView(note)} // відкриваємо модалку
+                  onClick={() => setNoteToView(note)}
                 >
                   View
                 </button>
@@ -72,7 +72,6 @@ const NoteList: React.FC<NoteListProps> = ({ notes }) => {
         ))}
       </ul>
 
-      {/* Модалка видалення */}
       {noteToDelete && (
         <Modal onClose={cancelDelete}>
           <div style={{ textAlign: 'center', padding: '1rem' }}>
@@ -101,7 +100,6 @@ const NoteList: React.FC<NoteListProps> = ({ notes }) => {
         </Modal>
       )}
 
-      {/* Модалка перегляду */}
       {noteToView && (
         <Modal onClose={closePreview}>
           <NotePreview id={noteToView.id} />
