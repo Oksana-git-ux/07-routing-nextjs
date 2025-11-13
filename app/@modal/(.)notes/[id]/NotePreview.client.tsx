@@ -1,36 +1,53 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchNoteById } from '@/lib/api';
-import { Note } from '@/types/note';
-import css from '@/components/NotePreview/NotePreview.module.css';
-import ErrorMessage from '@/components/ErrorMessage/ErrorMessage';
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import Modal from "../../../../components/Modal/Modal";
+import { Note } from "@/lib/types";
+import { fetchNoteById } from "@/lib/api";
+import styles from "./NotePreview.module.css";
 
 interface NotePreviewProps {
   id: string;
 }
 
 export default function NotePreview({ id }: NotePreviewProps) {
-  const { data: note, isLoading, isError, error } = useQuery<Note>({
-    queryKey: ['note-preview', id],
-    queryFn: async () => {
-      console.log('Fetching note preview with id:', id);
-      return fetchNoteById(id);
-    },
-    enabled: !!id,
+  const router = useRouter();
+
+  const {
+    data: note,
+    isLoading,
+    isError,
+  } = useQuery<Note, Error>({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
     refetchOnMount: false,
   });
 
-  if (!id) return <p>Note ID is required.</p>;
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <ErrorMessage message={`Failed to load note preview: ${error?.message}`} />;
-  if (!note) return <p>Note not found.</p>;
-
   return (
-    <div className={css.container}>
-      <h3 className={css.title}>{note.title}</h3>
-      <p className={css.content}>{note.content}</p>
-    </div>
+    <Modal onClose={() => router.back()}>
+      <div className={styles.container}>
+        {isLoading && <p>Loading note...</p>}
+        {isError && <p>Error loading note.</p>}
+
+        {note && (
+          <div className={styles.item}>
+            <button className={styles.backBtn} onClick={() => router.back()}>
+              ← Back
+            </button>
+
+            <div className={styles.header}>
+              <h2>{note.title}</h2>
+              {note.tag && <span className={styles.tag}>{note.tag}</span>}
+            </div>
+
+            <p className={styles.content}>{note.content}</p>
+            <p className={styles.date}>
+              {new Date(note.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 }

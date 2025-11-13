@@ -1,16 +1,16 @@
-import css from '@/app/notes/LayoutNotes.module.css';
+import styles from "./LayoutNotes.module.css";
 
-export default function NotesFilterLayout({
-  sidebar,
+export default function FilterLayout({
   children,
+  sidebar,
 }: {
-  sidebar: React.ReactNode;
   children: React.ReactNode;
+  sidebar?: React.ReactNode;
 }) {
   return (
-    <div className={css.layout}>
-      <aside className={css.sidebar}>{sidebar}</aside>
-      <main className={css.main}>{children}</main>
+    <div className={styles.container}>
+      <aside className={styles.sidebar}>{sidebar ?? null}</aside>
+      <main className={styles.notesWrapper}>{children}</main>
     </div>
   );
 }

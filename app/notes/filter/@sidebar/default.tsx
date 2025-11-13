@@ -1,7 +1,7 @@
-import css from '@/components/SidebarNotes/SidebarNotes.module.css';
-import Link from 'next/link';
+import Link from "next/link";
+import css from "./SidebarNotes.module.css";
 
-const TAGS = ['Work', 'Personal', 'Ideas', 'Important'];
+const TAGS = ["Todo", "Work", "Personal", "Meeting", "Shopping"];
 
 export default function SidebarNotes() {
   return (
@@ -11,11 +11,11 @@ export default function SidebarNotes() {
           All notes
         </Link>
       </li>
-      {TAGS.map(tag => (
+      {TAGS.map((tag) => (
         <li key={tag} className={css.menuItem}>
-          <a href={`/notes/filter/${tag}`} className={css.menuLink}>
+          <Link href={`/notes/filter/${tag}`} className={css.menuLink}>
             {tag}
-          </a>
+          </Link>
         </li>
       ))}
     </ul>

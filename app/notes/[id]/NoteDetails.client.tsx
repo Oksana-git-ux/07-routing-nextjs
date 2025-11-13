@@ -1,43 +1,46 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchNoteById } from '@/lib/api';
-import { Note } from '@/types/note';
-import css from './NoteDetails.module.css';
-import ErrorMessage from '@/components/ErrorMessage/ErrorMessage';
+import { useQuery } from "@tanstack/react-query";
+import { fetchNoteById } from "@/lib/api";
+import Modal from "@/components/Modal/Modal";
+import { useRouter } from "next/navigation";
+import css from "./NoteDetails.module.css";
 
 interface NoteDetailsClientProps {
-  noteId: string;
+  id: string;
 }
 
-const NoteDetailsClient: React.FC<NoteDetailsClientProps> = ({ noteId }) => {
-  const { data: note, isLoading, isError, error } = useQuery<Note>({
-    queryKey: ['note', noteId],
-    queryFn: async () => {
-      console.log('Fetching note with id:', noteId); // <- лог для дебагу
-      return fetchNoteById(noteId);
-    },
-    enabled: !!noteId, // запит виконується лише якщо noteId визначений
+export default function NoteDetailsClient({ id }: NoteDetailsClientProps) {
+  const router = useRouter();
+
+  const {
+    data: note,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
     refetchOnMount: false,
   });
 
-  if (!noteId) return <p>Note ID is required.</p>;
-  if (isLoading) return <p>Loading, please wait...</p>;
-  if (isError) return <ErrorMessage message={`Failed to load note details: ${error?.message}`} />;
-  if (!note) return <p>Note not found.</p>;
+  const close = () => router.back();
+
+  if (isLoading) return null; // нічого не рендеримо поки завантажується
+  if (error || !note) return <p>Could not load note details.</p>;
 
   return (
-    <div className={css.container}>
-      <div className={css.item}>
-        <div className={css.header}>
-          <h2>{note.title}</h2>
+    <Modal onClose={close}>
+      <div className={css.container}>
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+          </div>
+          <p className={css.content}>{note.content}</p>
+          <p className={css.date}>
+            {new Date(note.createdAt).toLocaleString()}
+          </p>
         </div>
-        <p className={css.content}>{note.content}</p>
-        <p className={css.date}>Created: {new Date(note.createdAt).toLocaleDateString()}</p>
       </div>
-    </div>
+    </Modal>
   );
-};
-
-export default NoteDetailsClient;
+}

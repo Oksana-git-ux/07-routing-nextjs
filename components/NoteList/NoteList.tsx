@@ -1,111 +1,53 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { deleteNote } from '@/lib/api';
-import type { Note } from '@/types/note';
-
-import Modal from '../Modal/Modal';
-import NotePreview from '@/app/@modal/(.)notes/[id]/NotePreview.client';
-import css from './NoteList.module.css';
+import React from "react";
+import Link from "next/link";
+import css from "./NoteList.module.css";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteNote } from "../../lib/api";
+import type { Note } from "../../types/note";
 
 interface NoteListProps {
   notes: Note[];
 }
 
 const NoteList: React.FC<NoteListProps> = ({ notes }) => {
-  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
-  const [noteToView, setNoteToView] = useState<Note | null>(null);
   const queryClient = useQueryClient();
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
+  const delMutation = useMutation<Note, Error, string>({
+    mutationFn: (id) => deleteNote(id),
     onSuccess: () => {
-      toast.success('Note deleted!');
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      setNoteToDelete(null);
-    },
-    onError: (error: unknown) => {
-      const message =
-        error instanceof Error ? error.message : 'Deletion failed';
-      toast.error(message);
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 
-  const confirmDelete = () => {
-    if (noteToDelete) deleteMutation.mutate(noteToDelete.id);
-  };
-
-  const cancelDelete = () => setNoteToDelete(null);
-  const closePreview = () => setNoteToView(null);
+  if (!notes.length) return <p className={css.status}>No notes found.</p>;
 
   return (
-    <>
-      <ul className={css.list}>
-        {notes.map((note) => (
-          <li key={note.id} className={css.listItem}>
-            <h3 className={css.title}>{note.title}</h3>
-            <p className={css.content}>{note.content}</p>
+    <ul className={css.list}>
+      {notes.map((note) => (
+        <li key={note.id} className={css.listItem}>
+          <h2 className={css.title}>{note.title}</h2>
+          <p className={css.content}>{note.content}</p>
+          <div className={css.footer}>
+            <span className={css.tag}>{note.tag}</span>
 
-            <div className={css.footer}>
-              {note.tag && <span className={css.tag}>{note.tag}</span>}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  className={css.link}
-                  onClick={() => setNoteToView(note)}
-                >
-                  View
-                </button>
-                <button
-                  className={css.button}
-                  onClick={() => setNoteToDelete(note)}
-                  disabled={deleteMutation.isPending}
-                >
-                  {deleteMutation.isPending && noteToDelete?.id === note.id
-                    ? 'Deleting...'
-                    : 'Delete'}
-                </button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            <Link href={`/notes/${note.id}`} className={css.link}>
+              View details
+            </Link>
 
-      {noteToDelete && (
-        <Modal onClose={cancelDelete}>
-          <div style={{ textAlign: 'center', padding: '1rem' }}>
-            <h3 style={{ marginBottom: '0.5rem' }}>Delete Note</h3>
-            <p>Are you sure you want to delete this note?</p>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '1rem',
-                marginTop: '1rem',
+            <button
+              className={css.button}
+              onClick={() => {
+                if (confirm("Delete this note?")) delMutation.mutate(note.id);
               }}
             >
-              <button
-                className={css.button}
-                onClick={confirmDelete}
-                disabled={deleteMutation.isPending}
-              >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-              </button>
-              <button className={css.link} onClick={cancelDelete}>
-                Cancel
-              </button>
-            </div>
+              Delete
+            </button>
           </div>
-        </Modal>
-      )}
-
-      {noteToView && (
-        <Modal onClose={closePreview}>
-          <NotePreview id={noteToView.id} />
-        </Modal>
-      )}
-    </>
+        </li>
+      ))}
+    </ul>
   );
 };
 

@@ -1,16 +1,68 @@
-'use client';
+.container {
+    max-width: 800px;
+    margin: 32px auto;
+    padding: 24px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
-import Modal from '@/components/Modal/Modal';
-import NotePreview from './NotePreview.client';
-import { useRouter } from 'next/navigation';
+.item {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
-export default function NotePreviewModal({ noteId }: { noteId: string }) {
-  const router = useRouter();
-  const close = () => router.back();
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+}
 
-  return (
-    <Modal onClose={close}>
-      <NotePreview id={noteId} />
-    </Modal>
-  );
+.header h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.content {
+    font-size: 18px;
+    line-height: 26px;
+    color: #444;
+    white-space: pre-wrap;
+}
+
+.date {
+    font-size: 14px;
+    color: #888;
+    text-align: right;
+}
+
+.tag {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #0d6efd;
+    background-color: #e7f1ff;
+    border: 1px solid #b6d4fe;
+    border-radius: 12px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.backBtn {
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: #000000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline-block;
+    background-color: transparent;
 }

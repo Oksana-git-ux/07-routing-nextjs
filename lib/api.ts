@@ -1,96 +1,77 @@
-import axios from 'axios';
-import { type Note, type NewNote } from '@/types/note';
+import axios, { type AxiosResponse } from "axios";
+import { Note, NoteTag, NormalizedNotesResponse } from "@/lib/types";
 
-const BASE_URL = 'https://notehub-public.goit.study/api';
-const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+export const NOTES_QUERY_KEY = "NOTES";
 
-interface FetchNotesResponse {
-  notes: any[]; // тимчасово any, бо API може мати _id
-  perPage: number;
-  total: number;
-  totalPages: number;
-}
+const BASE_URL = "https://notehub-public.goit.study/api";
+const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN || process.env.NOTEHUB_TOKEN;
 
-export interface NotesQueryResult {
-  notes: Note[];
-  totalPages: number;
-  totalNotes: number;
-}
-
-interface FetchNotesParams {
-  page?: number;
-  perPage?: number;
-  search?: string;
-  tag?: string;
-}
-
-const axiosInstance = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     Authorization: `Bearer ${TOKEN}`,
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// Трансформація даних API → відповідність типу Note
-function transformNote(raw: any): Note {
+interface RawApiResponse {
+  notes?: Note[];
+  total?: number;
+  page?: number;
+  perPage?: number;
+  totalPages?: number;
+}
+
+export default function normalizeFetchResponse(
+  resp: AxiosResponse<RawApiResponse>
+): NormalizedNotesResponse {
+  const {
+    notes = [],
+    total = notes.length,
+    page = 1,
+    perPage = notes.length,
+    totalPages = 1,
+  } = resp.data;
   return {
-    id: raw.id ?? raw._id ?? '', // якщо API повертає _id
-    title: raw.title ?? '',
-    content: raw.content ?? '',
-    createdAt: raw.createdAt ?? '',
-    updatedAt: raw.updatedAt ?? '',
-    tag: raw.tag ?? undefined,
+    data: notes,
+    meta: { totalItems: total, page, perPage, totalPages },
   };
 }
 
-export async function fetchNotes({
-  page = 1,
-  perPage = 12,
-  search = '',
-  tag = '',
-}: FetchNotesParams): Promise<NotesQueryResult> {
-  if (!TOKEN) throw new Error('API Token is missing.');
-
-  const params: Record<string, string | number> = { page, perPage };
-  if (search.trim() !== '') params.search = search;
-  if (tag?.trim() !== '') params.tag = tag;
-
-  const response = await axiosInstance.get<FetchNotesResponse>('/notes', { params });
-
-  const notes = response.data.notes.map(transformNote);
-
-  console.log('Fetched notes:', notes); // лог для перевірки
-
-  return {
-    notes,
-    totalPages: response.data.totalPages,
-    totalNotes: response.data.total,
-  };
+export interface FetchNotesParams {
+  page?: number;
+  perPage?: number;
+  search?: string;
+  tag?: NoteTag;
 }
 
-export async function fetchNoteById(noteId: string): Promise<Note> {
-  if (!noteId) throw new Error('Note ID is required');
-  if (!TOKEN) throw new Error('API Token is missing.');
+export async function fetchNotes(params: FetchNotesParams = {}): Promise<NormalizedNotesResponse> {
+  const { page = 1, perPage = 12, search, tag } = params;
+  const query: Record<string, string | number> = { page, perPage };
+  if (search) query.search = search;
+  if (tag) query.tag = tag;
 
-  const response = await axiosInstance.get(`/notes/${noteId}`);
-  const note = transformNote(response.data);
+  const resp = await api.get<RawApiResponse>("/notes", { params: query });
 
-  console.log('Fetched note by id:', noteId, note); // лог
-
-  return note;
+  return normalizeFetchResponse(resp);
 }
 
-export async function createNote(noteData: NewNote): Promise<Note> {
-  if (!TOKEN) throw new Error('API Token is missing.');
-
-  const response = await axiosInstance.post('/notes', noteData);
-  return transformNote(response.data);
+export async function fetchNoteById(id: string): Promise<Note> {
+  const { data } = await api.get<Note>(`/notes/${id}`);
+  return data;
 }
 
-export async function deleteNote(noteId: string): Promise<Note> {
-  if (!TOKEN) throw new Error('API Token is missing.');
+export async function createNote(payload: Pick<Note, "title" | "content" | "tag">): Promise<Note> {
+  const resp = await api.post<{ note?: Note; data?: Note }>("/notes", payload);
+  return resp.data.note ?? resp.data.data!;
+}
 
-  const response = await axiosInstance.delete(`/notes/${noteId}`);
-  return transformNote(response.data);
+export async function deleteNote(id: string): Promise<Note> {
+  const resp = await api.delete<{ note?: Note; data?: Note }>(`/notes/${id}`);
+  return resp.data.note ?? resp.data.data!;
+}
+
+export async function fetchNotesByTag(tag: string): Promise<Note[]> {
+  const { data } = await fetchNotes({ tag: tag as NoteTag });
+  return data;
 }
